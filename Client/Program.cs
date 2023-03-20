@@ -1,15 +1,15 @@
 ﻿using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using Shared;
 
+Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 var builder = new HostBuilder()
     .UseOrleansClient(client =>
     {
         client.UseLocalhostClustering();
-    })
-    .ConfigureLogging(logging => logging.AddConsole());
+    });
 
 var host = builder.Build();
 await host.StartAsync();
@@ -17,36 +17,45 @@ await host.StartAsync();
 Console.WriteLine("Client successfully connected to silo host \n");
 
 var clusterClient = host.Services.GetRequiredService<IClusterClient>();
-var firstPartyGrain = clusterClient.GetGrain<IFirstPartyGrain>("FirstParty");
-var thirdPartyGrain = clusterClient.GetGrain<IThirdPartyGrain>("ThirdParty");
+var electionId = Guid.NewGuid();
+var firstPartyGrain = clusterClient.GetGrain<IFirstPartyGrain>(electionId);
+var thirdPartyGrain = clusterClient.GetGrain<IThirdPartyGrain>(electionId);
 
-await RegisterVote("Party 1");
-await RegisterVote("Party 1");
-await RegisterVote("Party 1");
-await RegisterVote("Party 2");
-await RegisterVote("Party 2");
-await RegisterVote("Party 2");
+await RegisterVote("Voter 1", "Party 1");
+await RegisterVote("Voter 2", "Party 1");
+await RegisterVote("Voter 3", "Party 1");
+await RegisterVote("Voter 4", "Party 2");
+await RegisterVote("Voter 5", "Party 2");
+await RegisterVote("Voter 6", "Party 2");
+
+// Voter 1 changes their vote
+await RegisterVote("Voter 1", "Party 2");
+
 await GetVotes();
 
-async Task RegisterVote(string message)
+await host.StopAsync();
+
+async Task RegisterVote(string voterId, string message)
 {
-    var publicKey = await firstPartyGrain.GetPublicKey();
-    var oneTimeKey = await thirdPartyGrain.GetOneTimeKey();
+    var firstPartyKey = await firstPartyGrain.GetPublicKey();
+    var thirdPartyKey = await thirdPartyGrain.GetOneTimeKey();
+    
+    Log.Information("Registering vote for {Voter} for {Party}", voterId, message);
     
     var encryptedData = 
         Encoding.UTF8.GetBytes(message)
-        .EncryptRsa(publicKey)
-        .PadToLength(oneTimeKey.Key.Length)
-        .ApplyXorCipher(oneTimeKey.Key);
+        .EncryptWithRsaPublicKey(firstPartyKey)
+        .ApplyXorCipher(thirdPartyKey.Key);
     
-    await firstPartyGrain.SendVote(new Vote(oneTimeKey.Id, encryptedData));
+    await firstPartyGrain.RegisterVote(new RegisterVote(voterId, thirdPartyKey.Id, encryptedData));
 }
 
 async Task GetVotes()
 {
+    Log.Information("Tallying results:");
     var data = await firstPartyGrain.GetVotes();
     foreach (var message in data.Votes)
     {
-        Console.WriteLine($"{message.Key}: {message.Value}");
+        Log.Information($"{message.Key}: {message.Value}");
     }
 }

@@ -1,15 +1,15 @@
 ﻿namespace Shared;
 
-public interface IFirstPartyGrain : IGrainWithStringKey
+public interface IFirstPartyGrain : IGrainWithGuidKey
 {
     Task<byte[]> GetPublicKey();
-    Task SendVote(Vote vote);
+    Task RegisterVote(RegisterVote registerVote);
     Task<Result> GetVotes();
 }
 
 
-public interface IThirdPartyGrain : IGrainWithStringKey
+public interface IThirdPartyGrain : IGrainWithGuidKey
 {
     Task<OneTimeKeyResult> GetOneTimeKey();
-    Task<UnmaskedVotes> UnmaskVotes(Vote[] encryptedVotes);
+    Task<UnmaskedVotes> UnmaskVotes(ICollection<EncryptedVoteData> encryptedVotes);
 }

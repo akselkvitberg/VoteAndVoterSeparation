@@ -1,8 +1,23 @@
 ﻿namespace Shared;
 
 [GenerateSerializer]
-public record Result([property: Id(1)] Dictionary<string, int> Votes);
+public record OneTimeKeyResult(
+    [property: Id(1)] Guid Id, 
+    [property: Id(2)] byte[] Key
+);
 
+[GenerateSerializer]
+public record RegisterVote(
+    [property: Id(1)] string VoterId, 
+    [property: Id(2)] Guid ThirdPartyKeyId, 
+    [property: Id(3)] byte[] EncryptedData
+);
+
+[GenerateSerializer]
+public record EncryptedVoteData(
+    [property: Id(1)] Guid ThirdPartyKeyId,
+    [property: Id(2)] byte[] EncryptedData
+);
 
 [GenerateSerializer]
 public record UnmaskedVotes(
@@ -10,13 +25,6 @@ public record UnmaskedVotes(
 );
 
 [GenerateSerializer]
-public record Vote(
-    [property: Id(1)]Guid ThirdPartyKeyId, 
-    [property: Id(2)] byte[] EncryptedData
-);
-
-[GenerateSerializer]
-public record OneTimeKeyResult(
-    [property: Id(1)] Guid Id, 
-    [property: Id(2)] byte[] Key
+public record Result(
+    [property: Id(1)] Dictionary<string, int> Votes
 );

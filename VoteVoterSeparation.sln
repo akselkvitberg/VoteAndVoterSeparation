@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirstParty", "FirstParty\Fi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThirdParty", "ThirdParty\ThirdParty.csproj", "{BD936516-65F9-4989-B752-318AE11C5217}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{93808253-F572-4804-B473-A1E1CAE357F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{BD936516-65F9-4989-B752-318AE11C5217}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD936516-65F9-4989-B752-318AE11C5217}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD936516-65F9-4989-B752-318AE11C5217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93808253-F572-4804-B473-A1E1CAE357F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93808253-F572-4804-B473-A1E1CAE357F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93808253-F572-4804-B473-A1E1CAE357F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93808253-F572-4804-B473-A1E1CAE357F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
